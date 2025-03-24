@@ -16,6 +16,7 @@ router.get('/', async (req, res) => {
   if (req.query.publishedAfter != null && req.query.publishedAfter != '') {
     query = query.gte('publishDate', req.query.publishedAfter)
   }
+  console.log(query)
   try {
     const books = await query.exec()
     res.render('books/index', {
@@ -34,6 +35,7 @@ router.get('/new', async (req, res) => {
 
 // Create Book Route
 router.post('/', async (req, res) => {
+  console.log(req.body)
   const book = new Book({
     title: req.body.title,
     author: req.body.author,
@@ -41,6 +43,7 @@ router.post('/', async (req, res) => {
     pageCount: req.body.pageCount,
     description: req.body.description
   })
+
   saveCover(book, req.body.cover)
 
   try {
@@ -104,7 +107,7 @@ router.delete('/:id', async (req, res) => {
   let book
   try {
     book = await Book.findById(req.params.id)
-    await book.remove()
+    await book.deleteOne()
     res.redirect('/books')
   } catch {
     if (book != null) {
@@ -150,7 +153,6 @@ function saveCover(book, coverEncoded) {
   if (coverEncoded == null) return
   const imageMimeTypes = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif']
   const cover = JSON.parse(coverEncoded)
-  console.log(cover)
   if (cover != null && imageMimeTypes.includes(cover.type)) {
     book.coverImage = new Buffer.from(cover.data, 'base64')
     book.coverImageType = cover.type

@@ -23,11 +23,11 @@ const bookSchema = new mongoose.Schema({
   },
   coverImage: {
     type: Buffer,
-    required: false
+    required: true
   },
   coverImageType: {
     type: String,
-    required: false
+    required: true
   },
   author: {
     type: mongoose.Schema.Types.ObjectId,
