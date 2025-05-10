@@ -1,11 +1,12 @@
 const express = require('express')
 const Book = require('../models/Book')
 const Author = require('../models/Author')
+const { ensureAuthenticated, checkRole } = require('../middleware/auth');
 
 const router = express.Router()
 
 // All Books Route
-router.get('/', async (req, res) => {
+router.get('/', ensureAuthenticated, checkRole('admin', 'author', 'user'), async (req, res) => {
   let query = Book.find()
   if (req.query.title != null && req.query.title != '') {
     query = query.regex('title', new RegExp(req.query.title, 'i'))
@@ -29,12 +30,12 @@ router.get('/', async (req, res) => {
 })
 
 // New Book Route
-router.get('/new', async (req, res) => {
+router.get('/new', ensureAuthenticated, checkRole('admin', 'author'), async (req, res) => {
   renderNewPage(res, new Book())
 })
 
 // Create Book Route
-router.post('/', async (req, res) => {
+router.post('/', ensureAuthenticated, checkRole('admin', 'author'), async (req, res) => {
   console.log(req.body)
   const book = new Book({
     title: req.body.title,
@@ -56,7 +57,7 @@ router.post('/', async (req, res) => {
 })
 
 // Show Book Route
-router.get('/:id', async (req, res) => {
+router.get('/:id', ensureAuthenticated, checkRole('admin', 'author', 'user'), async (req, res) => {
   try {
     const book = await Book.findById(req.params.id)
                            .populate('author')
@@ -68,7 +69,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // Edit Book Route
-router.get('/:id/edit', async (req, res) => {
+router.get('/:id/edit', ensureAuthenticated, checkRole('admin', 'author'), async (req, res) => {
   try {
     const book = await Book.findById(req.params.id)
     renderEditPage(res, book)
@@ -78,7 +79,7 @@ router.get('/:id/edit', async (req, res) => {
 })
 
 // Update Book Route
-router.put('/:id', async (req, res) => {
+router.put('/:id', ensureAuthenticated, checkRole('admin', 'author'), async (req, res) => {
   let book
 
   try {
@@ -103,7 +104,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // Delete Book Page
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', ensureAuthenticated, checkRole('admin', 'author'), async (req, res) => {
   let book
   try {
     book = await Book.findById(req.params.id)
